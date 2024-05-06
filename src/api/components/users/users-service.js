@@ -7,7 +7,17 @@ const { hashPassword, passwordMatched } = require('../../../utils/password');
 async function getUsers(noPage, sizePage, sortPage, searchPage) {
   try {
     //add repository
-    const users = await usersRepository.getUsers(noPage, sizePage, sortPage, searchPage);
+      const users = await usersRepository.getUsers(noPage, sizePage, sortPage, searchPage);
+      
+  // Modify sorting criteria if sortPage includes ':desc'
+    if (sortPage.includes(':desc')) {
+  // Destructure NamePage and orders from the split sortPage
+      const [NamePage, orders] = sortPage.split(' : ');
+  // If NamePage is 'name' or 'email', sort by that field in descending order
+    if (NamePage === 'name' || NamePage === 'email') {
+      pages_Sort = { [NamePage]: -1 };
+  }
+}
     return users;
   } catch (error) {
     throw new Error(error.message);

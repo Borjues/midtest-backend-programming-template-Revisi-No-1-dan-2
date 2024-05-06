@@ -26,22 +26,12 @@ async function getUsers(noPage, sizePage, sortPage, searchPage) {
 
     let pages_Sort;
     // Determine sorting criteria based on sortPage value
-    if (sortPage === 'desc') {
-      // If sortPage is 'desc', sort by name in descending order
-      pages_Sort = { name: -1 };
-    } else {
-      // Otherwise, sort by name in ascending order
+    if (sortPage === 'asc') {
+      // If sortPage is 'asc', sort by name in ascending order
       pages_Sort = { name: 1 };
-    }
-
-    // Modify sorting criteria if sortPage includes ':desc'
-    if (sortPage.includes(':desc')) {
-      // Destructure NamePage and orders from the split sortPage
-      const [NamePage, orders] = sortPage.split(' : ');
-      // If NamePage is 'name' or 'email', sort by that field in descending order
-      if (NamePage === 'name' || NamePage === 'email') {
-        pages_Sort = { [NamePage]: -1 };
-      }
+    } else {
+      // Otherwise, sort by name in descending order
+      pages_Sort = { name: -1 };
     }
 
     let users;
@@ -52,28 +42,31 @@ async function getUsers(noPage, sizePage, sortPage, searchPage) {
     } else {
       // Otherwise, fetch users with pagination and limit/offset
       users = await User.find(query)
-        .sort(pages_Sort)
+        .skip(noPage - 1)
         .limit(sizePage)
-        .skip(noPage - 1);
+        .sort(pages_Sort)
+        ;
     }
 
     const Total_Pages = Math.ceil(countTOTAL / sizePage);
-    const has_previous_page = noPage > 1;
     const has_next_page = sizePage < Total_Pages;
+    const has_previous_page = noPage > 1;
 
     return {
+      page_total: Total_Pages,
       page_number: noPage,
       page_size: sizePage,
-      page_total: Total_Pages,
       has_previous_page: has_previous_page,
       has_next_page: has_next_page,
       data: users.map((user) => ({
+
         id: user._id,
         name: user.name,
         email: user.email,
         is_active: user.isActive,
         registration_date: user.registrationDate,
         last_login: user.lastLogin,
+
       })),
     };
   } catch (error) {

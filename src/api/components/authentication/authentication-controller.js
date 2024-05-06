@@ -47,7 +47,7 @@ async function login(request, response, next) {
       attemptsLog[`${usedEmail}_timestamp`] = Date.now();
       throw errorResponder(
         errorTypes.INVALID_CREDENTIALS,
-        'Wrong email or password'
+        `Wrong email or password,               Your current failed attempt:${failedAttempts}`
       );
 
 
@@ -57,11 +57,7 @@ async function login(request, response, next) {
     delete attemptsLog[usedEmail];
     delete attemptsLog[`${usedEmail}_timestamp`];
 
-    return response.status(200).json({
-      success_Login: true,
-      message: 'Login successful',
-      recently_failed_attempts: failedAttempts, // Adding attempts count to the response
-    });
+    return response.status(200).json(loginSuccess);
   } catch (error) {
     return next(error);
   }
